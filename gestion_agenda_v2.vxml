@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="Gestion agenda version 1"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<!-- Version de base : gestion de dialogue et comprehension -->
+	<!-- Demande et verification du numero d'abonne -->
+
+	<!-- Activation de la grammaire permettant la detection des -->
+	<!-- demandes d'aide formulees par l'utilisateur            -->
+
+	<!-- gestion de l'aide utilisateur -->
+	<link event="help">
+		<grammar src="Grammaire/grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<!-- geestion de la sortie a toute instant -->
+	<link event="exit">
+		<grammar src="Grammaire/grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+
+	<script>
+		var active_trace = 'false';
+
+		<!-- Date courante -->
+		var now = new Date(2016, 12, 11, 21, 55, 0, 0);
+	</script>
+
+	<!-- Gestion de dialogue de l'agenda -->
+	<form id="agenda">
+		<block>
+			<prompt>
+				Bienvenue sur le service de gestion de votre agenda. 
+				Aujourd'hui nous sommes le : <value expr="now.toString()" />
+			</prompt>
+			<!-- affiche le nombre de millisecondes correspondant -->
+			<value expr="now.valueOf()" />
+		</block>
+
+		<!-- Phase de connection -->
+		<subdialog name="gestion_connection" src="Sous_Dialogue/sd_agenda_connection_v1.vxml#connection" >
+			<param name="mode_trace" expr="active_trace" />
+
+			<filled>
+				<if cond="gestion_connection.reponse=='False'">
+					<clear namelist="gestion_connection"/>
+				</if>
+			</filled>
+		</subdialog>
+
+		<!-- Choix de l'action a realiser -->
+		<field name="gestion_action">
+			<prompt>
+				Que voulez-vous faire ?
+			</prompt>
+
+			<!-- Appel a une grammaire externe: choix de l'action desiree -->
+			<grammar src="Grammaire/grammaire_gestion_action_V2.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> Veuillez saisir l'action dans l'agenda desiree: ajouter, modifer, supprimer, consulter </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser l'action que vous souhaitez? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner votre action desiree S.V.P ? </nomatch>
+		</field>
+
+		<!-- Ajout d'un rendez-vous -->
+		<subdialog name="ajout_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='add'" >
+			<param name="mode_trace" expr="active_trace" />
+		</subdialog>
+
+		<!-- Modification d'un rendez-vous -->
+		<subdialog name="ajout_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='update'" >
+			<param name="mode_trace" expr="active_trace" />
+		</subdialog>
+
+		<!-- Suppression d'un rendez-vous -->
+		<subdialog name="ajout_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='remove'" >
+			<param name="mode_trace" expr="active_trace" />
+		</subdialog>
+
+		<!-- Consultation d'un rendez-vous -->
+		<subdialog name="ajout_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='add'" >
+			<param name="mode_trace" expr="active_trace" />
+		</subdialog>
+
+		<block>
+			<prompt> Fermeture de votre agenda. Merci de votre visite. A bientot </prompt>
+		</block>
+	</form>
+	
+	<!-- Gestion de la phase de deconnection de l'agenda -->
+	<form id="deconnection">
+	
+	</form>
+</vxml>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character -->
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="Agenda connection version 1"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+	
+	<!-- gestion de l'aide utilisateur -->
+	<link event="help">
+		<grammar src="../Grammaire/grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<!-- geestion de la sortie a toute instant -->
+	<link event="exit">
+		<grammar src="../Grammaire/grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+	
+	<!-- Gestion de la phase de connection a l'agenda -->
+	<form id="connection">
+		<!-- initialisation des variables internes au formulaire -->
+		<var name="reponse" />
+		<var name="message_confirm" />
+		<var name="mode_trace" />
+
+		<!-- declaration des variables Javascript -->
+		<script>				
+			   <!-- Valeur de la date fournie par l'utilisateur -->
+				var date_choisie = new Date();
+		</script>
+
+		<!-- Champ/Slot NUMERO D'ABONNE -->
+		<field name="num_abonne">
+			<prompt> Quel est votre numero d'abonne ? </prompt>
+
+			<!-- Appel a une grammaire externe -->
+			<grammar src="../Grammaire/grammaire_num_ab_v2.grxml" type="application/srgs+xml"/>
+
+			<!-- Gestion des erreurs -->
+			<help> Donner un nombre compris entre 1 et 999 999 </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser votre numero d'abonne ? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner votre numero d'abonne S.V.P ? </nomatch>
+
+			<!-- Comportement du systeme une fois ce champ rempli -->
+			<filled>
+				Votre numero d'abonne est le <value expr="num_abonne.text" /> 
+				<if cond="mode_trace=='True'">
+				   TRACE VALEUR  <value expr="num_abonne.nb" />
+				</if>
+			</filled>
+		</field>
+
+		<!-- Champ/Slot de confirmation  -->
+		<subdialog name="confirm_num_abonne" src="sous_dialogue_confirmation_V1.vxml#confirmation_explicite" >
+			<param name="masculin" expr="'True'" />
+			<param name="mode_trace" expr="'False'" />
+
+			<filled>
+				<if cond="confirm_num_abonne.reponse=='False'">
+					Votre numero d'abonne n'a pas ete valide.
+					<clear namelist="num_abonne confirm_num_abonne" />
+				</if>
+			</filled>
+		</subdialog>
+		
+		<field name="controle_validite">
+			<prompt> Quel est votre code de verification ? </prompt>
+			
+			<!-- Appel a une grammaire externe -->
+			<grammar src="../Grammaire/grammaire_nombre_v3.grxml" type="application/srgs+xml" />
+			
+			<help> Votre nombre doit etre compris entre 1 et 2500 </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous repeter ? </noinput>
+			<nomatch> Je ne vous ai pas compris. Pouvez-vous saisir votre code de verification ? </nomatch>
+			
+			<filled>
+				<prompt> Votre code de verification est le: <value expr="controle_validite.text" /> </prompt>
+				<if cond="controle_validite.nb &gt; '0' &amp;&amp; controle_validite.nb &lt; '2501'">
+					Votre numero d'identifiant a bien ete valide. Procedons a la connexion.
+					Connexion en cours...
+					<assign name="reponse" expr="'True'"/>
+				<else/>
+					Nous n'avons put vous identifier.
+					<assign name="reponse" expr="'False'"/>
+				</if>
+				
+				<return namelist="'reponse'" />
+			</filled>
+		</field>
+		
+	</form>
+</vxml>

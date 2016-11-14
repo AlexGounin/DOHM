@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="Sous dialogue de confirmation"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<!-- Version de base : gestion de dialogue et comprehension -->
+	<!-- Demande et verification du numero d'abonne -->
+
+	<!-- Activation de la grammaire permettant la detection des -->
+	<!-- demandes d'aide formulees par l'utilisateur            -->
+
+	<!-- gestion de l'aide utilisateur -->
+	<link event="help">
+		<grammar src="../Grammaire/grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<!-- geestion de la sortie a toute instant -->
+	<link event="exit">
+		<grammar src="../Grammaire/grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+
+	<!-- dialogue de demande d'information -->
+	<form id="confirmation_explicite">
+		<var name="masculin" />
+		<var name="reponse" />
+		<var name="message_confirm" />
+		<var name="mode_trace" />
+
+		<field name="confirm">
+			<prompt cond="masculin=='True'"> Pouvez-vous me le confirmer ? </prompt>
+			<prompt cond="masculin=='False'"> Pouvez-vous me la confirmer ? </prompt>
+			 
+			<!-- Appel a une grammaire externe -->
+			<grammar src="../Grammaire/grammaire_act_lang_confirmation_v2.grxml" type="application/srgs+xml" />
+			 
+			<!-- Gestion des erreurs -->
+			<help> Repondez par oui ou non </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous repeter ? </noinput>
+			<nomatch> Je ne vous ai pas compris. Pouvez-vous repondre par oui ou par non </nomatch>
+			 
+			<!-- Comportement du systeme apres confirmation/infirmation --> 
+			<!-- OK ==> On sort ou on passe a une autre sous-tache -->
+			<!-- NOK ==> On efface tout et on recommence --> 
+			<filled>
+				<if cond="confirm=='True'">
+					<assign name="message_confirm" expr="'Numero confirme'" />
+					<assign name="reponse" expr="'True'" />
+				<else/>
+					<assign name="message_confirm" expr="'Numero non confirme'" />
+					<assign name="reponse" expr="'False'" />
+				</if>
+				
+				<!-- Comportement si le mode TRACE est active --> 
+				<if cond="mode_trace=='True'">
+					TRACE Reponse: <value expr="message_confirm" />
+				</if>
+				<return namelist="reponse" />
+			</filled>
+		</field>
+	</form>
+</vxml>

@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character -->
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="Agenda connection version 1"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+	
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+
+	<link event="help">
+		<grammar src="grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<link event="exit">
+		<grammar src="grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+	
+	<form id="ajout_rdv">
+		<var name="reponse" />
+		<var name="message_confirm" />
+		<var name="valider_horaire" />
+		<var name="mode_trace" />
+		<var name="add_object" />
+		<var name="date_choisie" />
+
+		<block>
+			Procedons a l'ajout d'un rendez-vous dans votre agenda.
+		</block>
+		
+		<!-- champ DATE -->
+		<field name="date">
+			<prompt> Qu'elle est la date de votre rendez-vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="../Grammaire/grammaire_dates_v3.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> error </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser votre date de rendez-vous? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner votre de rendez-vous S.V.P ? </nomatch>
+			
+			<!-- Comportement du systeme une fois ce champ rempli -->
+			<filled>
+				<prompt> Votre numero date de rendez-vous est le <value expr="date.text" /> </prompt>
+				<if cond="mode_trace=='True'">
+				   TRACE VALEUR 
+				   numero de jour: <value expr="date.num_jour" />
+				   nombre de jour: <value expr="date.nb_jour" />
+				   numero de mois: <value expr="date.num_mois" />
+				   nombre d'annee: <value expr="date.nb_annee" />
+				</if>
+			</filled>
+		</field>
+		
+		<!-- champ CONFIRMATION DATE -->
+		<subdialog name="confirm_date" src="sous_dialogue_confirmation_V1.vxml#confirmation_explicite" >
+			<param name="masculin" expr="'False'" />
+			<param name="mode_trace" expr="'False'" />
+
+			<!-- Comportement du systeme apres confirmation/infirmation --> 
+			<!-- OK ==> On sort ou on passe a une autre sous-tache -->
+			<!-- NOK ==> On efface tout et on recommence --> 
+			<filled>
+				<if cond="confirm_date.reponse=='True'">
+					<assign name="message_confirm" expr="'Date confirme'" />
+				<else/>
+					<assign name="message_confirm" expr="'Date non confirme'" />
+					<clear namelist="date confirm_date" />
+				</if>
+				
+				<!-- Comportement si le mode TRACE est active --> 
+				<if cond="mode_trace=='True'">
+					TRACE Reponse <value expr="message_confirm" />
+				</if>
+			</filled>
+		</subdialog>
+		
+		<!-- champ HORAIRE -->
+		<field name="horaire">
+			<prompt> Qu'elle est l'horaire de votre rendez-vous S.V.P? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="grammaire_horaire.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> error </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser l'horaire? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner l'horaire de votre rendez-vous S.V.P ? </nomatch>
+			
+			<!-- Comportement du systeme une fois ce champ rempli -->
+			<filled>
+				<if cond="mode_trace=='True'">
+				   TRACE VALEUR 
+				   heures: <value expr="horaire.heure" />
+				   minutes: <value expr="horaire.minute" />
+				   nb de minute total:<value expr="horaire.nb_minutes" />
+				</if>
+				
+				<if cond="horaire.nb_minutes &lt; '1440'">
+					<if cond="horaire.nb_minutes &gt; '449' &amp;&amp; horaire.nb_minutes &lt; '1291'">
+						<assign name="valider_horaire" expr="1"/>
+					<else/>
+						<assign name="valider_horaire" expr="0"/>
+					</if>
+				<else/>
+					<assign name="valider_horaire" expr="2"/>
+				</if>
+
+				<if cond="valider_horaire=='0'">
+					Cet horaire n'est pas dans la plage valide: sept heure trente jusque vingt et une heure trente.
+					<clear namelist="horaire" />
+				<else/>
+					<if cond="valider_horaire=='2'">
+						<prompt> <value expr="horaire.text" /> n'est pas un horaire valide.</prompt>
+						<clear namelist="horaire" />
+					<else/>
+						<prompt>Votre rendez-vous est a <value expr="horaire.text" /> </prompt>
+					</if>
+				</if>
+			</filled>
+		</field>
+		
+		<!-- champ CONFIRMATION HORAIRE -->
+		<subdialog name="confirm_horaire" src="sous_dialogue_confirmation_V1.vxml#confirmation_explicite" >
+			<param name="masculin" expr="'True'" />
+			<param name="mode_trace" expr="'False'" />
+
+			<!-- Comportement du systeme apres confirmation/infirmation --> 
+			<!-- OK ==> On sort ou on passe a une autre sous-tache -->
+			<!-- NOK ==> On efface tout et on recommence --> 
+			<filled>
+				<if cond="confirm_horaire.reponse=='True'">
+					<assign name="message_confirm" expr="'Horaire confirme'" />
+	
+					<script>				
+						<!-- Valeur de la date fournie par l'utilisateur -->
+						date_choisie = new Date(date.nb_annee, date.num_mois, date.nb_jour, horaire.heure, horaire.minute);
+					</script>
+					
+				<else/>
+					<assign name="message_confirm" expr="'Horaire non confirme'" />
+					<clear namelist="horaire confirm_horaire" />
+				</if>
+				
+				<!-- Comportement si le mode TRACE est active --> 
+				<if cond="mode_trace=='True'">
+					TRACE Reponse
+					<value expr="message_confirm" />
+				</if>
+				
+			</filled>
+		</subdialog>
+
+		<!-- champ LIEU -->
+		<field name="choix_lieu">
+			<prompt> Ou ce trouve votre rendez-vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: lieu -->
+			<grammar src="grammaire_lieu.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> Precisez votre lieu </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser le lieu? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner le lieu de votre rendez-vous S.V.P ? </nomatch>
+
+			<filled>
+				<prompt> Vous avez rendez-vous a :<value expr="choix_lieu.lieu" /> </prompt>
+			</filled>
+		</field>
+
+		<!-- champ CONFIRMATION LIEU -->
+		<subdialog name="confirm_lieu" src="sous_dialogue_confirmation_V1.vxml#confirmation_explicite" >
+			<param name="masculin" expr="'True'" />
+			<param name="mode_trace" expr="'False'" />
+
+			<!-- Comportement du systeme apres confirmation/infirmation --> 
+			<!-- OK ==> On sort ou on passe a une autre sous-tache -->
+			<!-- NOK ==> On efface tout et on recommence --> 
+			<filled>
+				<if cond="confirm_lieu.reponse=='True'">
+					<assign name="message_confirm" expr="'Lieu confirme'" />
+					
+				<else/>
+					<assign name="message_confirm" expr="'Horaire non confirme'" />
+					<clear namelist="choix_lieu confirm_lieu" />
+				</if>
+				
+				<!-- Comportement si le mode TRACE est active --> 
+				<if cond="mode_trace=='True'">
+					TRACE Reponse <value expr="message_confirm" />
+				</if>
+			</filled>
+		</subdialog>
+
+		<!-- champ PERSONNE -->
+		<field name="choix_personne">
+			<prompt> Avec qui avez vous rendez vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="grammaire_personne.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> Saisissez le nom complet: titre prenom nom </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser le nom de cette personne? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous m'indiquer avec qui avez vous rendez-vous S.V.P ? </nomatch>
+
+			<filled>
+				<prompt> Vous avez rendez-vous avec <value expr="choix_personne.text" /> </prompt>
+			</filled>
+		</field>
+
+		<!-- champ CONFIRMATION PERSONNE -->
+		<subdialog name="confirm_personne" src="sous_dialogue_confirmation_V1.vxml#confirmation_explicite" >
+			<param name="masculin" expr="'True'" />
+			<param name="mode_trace" expr="'False'" />
+
+			<!-- Comportement du systeme apres confirmation/infirmation --> 
+			<!-- OK ==> On sort ou on passe a une autre sous-tache -->
+			<!-- NOK ==> On efface tout et on recommence --> 
+			<filled>
+				<if cond="confirm_personne.reponse=='True'">
+					<assign name="message_confirm" expr="'Lieu confirme'" />
+					
+				<else/>
+					<assign name="message_confirm" expr="'Horaire non confirme'" />
+					<clear namelist="choix_personne confirm_personne" />
+				</if>
+				
+				<!-- Comportement si le mode TRACE est active --> 
+				<if cond="mode_trace=='True'">
+					TRACE Reponse <value expr="message_confirm" />
+				</if>
+			</filled>
+		</subdialog>
+
+		<field name="demande_objet">
+			<prompt> Souhaitez vous ajouter un objet a votre rendez-vous ? </prompt>
+
+			<grammar src="grammaire_act_lang_confirmation_v2.grxml" type="application/srgs+xml" />
+
+			<help> Repondez par oui ou non </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser le nom de cette personne? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous m'indiquer votre souhait concernant l'ajout d'un objet S.V.P ? </nomatch>
+
+			<filled>
+				<if cond="demande_objet=='True'">
+					<assign name="add_object" expr="'True'"/>
+				<else/>
+					<assign name="add_object" expr="'False'"/>
+				</if>
+			</filled>
+		</field>
+
+		<!-- champ OBJET -->
+		<field name="choix_object" cond="add_object=='True'">
+			<prompt> Qu'elle est l'objet de votre rendez-vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="grammaire_objet.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> Saisissez l'objet </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser le nom de cette personne? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous m'indiquer avec qui avez vous rendez-vous S.V.P ? </nomatch>
+
+			<filled>
+				<prompt> L'objet de votre rendze-vous est: <value expr="choix_object.text" /> </prompt>
+			</filled>
+		</field>
+
+		<!-- champ CONFIRMATION OBJECT -->
+		<subdialog name="confirm_obect" src="sous_dialogue_confirmation_V1.vxml#confirmation_explicite" cond="add_object=='True'" >
+			<param name="masculin" expr="'True'" />
+			<param name="mode_trace" expr="'False'" />
+
+			<!-- Comportement du systeme apres confirmation/infirmation --> 
+			<!-- OK ==> On sort ou on passe a une autre sous-tache -->
+			<!-- NOK ==> On efface tout et on recommence --> 
+			<filled>
+				<if cond="confirm_obect.reponse=='True'">
+					<assign name="message_confirm" expr="'Object confirme'" />
+					
+				<else/>
+					<assign name="message_confirm" expr="'Object non confirme'" />
+					<clear namelist="choix_personne confirm_personne" />
+				</if>
+				
+				<!-- Comportement si le mode TRACE est active --> 
+				<if cond="mode_trace=='True'">
+					TRACE Reponse <value expr="message_confirm" />
+				</if>
+			</filled>
+		</subdialog>
+
+		<block>
+			Votre demande d'ajout de rendez-vous a bien ete prise en compte, veuillez patienter...
+			<prompt> Un rendez-vous avec <value expr="choix_personne.text"/> le <value expr="date_choisie"/> a <value expr="horaire.text"/> a ete ajoute a votre agenda. </prompt>
+		</block>
+	</form>
+</vxml>

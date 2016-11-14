@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar root="Personne" version="1.0" xml:lang="fr">
+
+	<meta name="description" content="grammaire Personnes"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+	<!--Regle horaire:
+		out.heure = le nombre d'heure
+		out.minute = le nombre de minute
+		out.nb_minutes = le nombre total de minute
+		out.text = horaire interpreter
+	-->
+	<rule id="Personne" scope="public">
+		<item repeat="0-1"> avec </item>
+		<one-of>
+			<item repeat="0-1"> <ruleref uri="#titre_m"/>
+				<tag>
+					out.genre = rules.latest().genre;
+				</tag>
+			</item>
+			<item repeat="0-1"> <ruleref uri="#titre_f"/>
+				<tag>
+					out.genre = rules.latest().genre;
+				</tag>
+			</item>
+		</one-of>
+
+		<item repeat="0-1"> <ruleref uri="#prenom"/>
+			<tag>
+				out.prenom = rules.prenom.prenom;
+			</tag>
+		</item>
+		<item repeat="0-1"> <ruleref uri="#noms"/>
+			<tag>
+				out.nom = rules.noms.nom;
+			</tag>
+		</item>
+
+		<tag>
+			out.text = meta.current().text;
+		</tag>
+	</rule>
+
+	<rule id="titre_m">
+		<one-of>
+			<item> monsieur </item>
+			<item> docteur </item>
+		</one-of>
+		<tag>
+			out.genre = 'm';
+		</tag>
+	</rule>
+
+	<rule id="titre_f">
+		<one-of>
+			<item> madame </item>
+			<item> mademoiselle </item>
+			<item> docteur </item>
+		</one-of>
+		<tag>
+			out.genre = 'f';
+		</tag>
+	</rule>
+
+	<rule id="prenom">
+		<one-of>
+			<item> juliette </item>
+			<item> jerome </item>
+			<item> christian </item>
+			<item> pierre </item>
+		</one-of>
+		<tag>
+			out.prenom = meta.current().text;
+		</tag>
+	</rule>
+
+	<rule id="noms">
+		<one-of>
+			<item> dupond </item>
+			<item> pinquier </item>
+			<item> durant </item>
+		</one-of>
+		<tag>
+			out.nom = meta.current().text;
+		</tag>
+	</rule>
+</grammar>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="gestion de l'ajout d'un rendez-vous avec une interaction mixte"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content=""/>
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+
+	<link event="help">
+		<grammar src="..\Grammaire\grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<link event="exit">
+		<grammar src="..\Grammaire\grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+
+</vxml>

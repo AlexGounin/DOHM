@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar root="Horaire" version="1.0" xml:lang="fr">
+
+	<meta name="description" content="grammaire horaire"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+	<!--Regle horaire:
+		out.heure = le nombre d'heure
+		out.minute = le nombre de minute
+		out.nb_minutes = le nombre total de minute
+		out.text = horaire interpreter
+	-->
+	<rule id="Horaire" scope="public">
+		<!-- heure [+ minute] [+ soir ou matin] -->
+		<one-of>
+			<item> <ruleref uri="#heure"/> </item>
+			<item> <ruleref uri="#heure_plus_minute"/> </item>
+		</one-of>
+		<tag>
+			out.heure = rules.latest().heure;
+			out.minute = rules.latest().minute;
+			out.nb_minutes = out.heure * 60 + out.minute;
+			out.text = rules.latest().text;
+		</tag>
+		
+		<item repeat="0-1"> <ruleref uri="#heure_soir" />
+			<tag>
+				out.heure = (out.heure % 12) + rules.latest().operation_heure;
+				out.nb_minutes = out.heure * 60 + out.minute;
+				out.text = out.text + rules.latest().text;
+			</tag>
+		</item>
+		
+		<item repeat="0-1"> <ruleref uri="#heure_matin" />
+			<tag>
+				out.heure = (out.heure % 12);
+				out.nb_minutes = out.heure * 60 + out.minute;
+				out.text = out.text + rules.latest().text;
+			</tag>
+		</item>
+	</rule>
+	
+	<rule id="heure">
+		<one-of>
+			<item> <ruleref uri="#heure_special"/> </item>
+			<item> <ruleref uri="#heure_classic" /> </item>
+		</one-of>
+		
+		<tag>
+			out.heure = rules.latest().heure;
+			out.minute = 0;
+			out.text = rules.latest().text;
+		</tag>
+	</rule>
+	
+	<rule id="heure_special">
+		<one-of>
+			<item> midi
+				<tag>
+					out.heure = 12;
+				</tag>
+			</item>
+			<item> minuit
+				<tag>
+					out.heure = 24;
+				</tag>
+			</item>
+		</one-of>
+		<tag>
+			out.text = meta.current().text;
+		</tag>
+	</rule>
+	
+	<rule id="heure_classic">
+		<one-of>
+			<item> <ruleref uri="grammaire_nombre_v3.grxml#nombre" />
+				<tag>
+					out.heure = rules.nombre.nb;
+					out.text = meta.nombre.text + ' heures';
+				</tag>
+			</item>
+			<item> une
+				<tag>
+					out.heure = 1;
+					out.text = 'une heure';
+				</tag>
+			</item>
+		</one-of>
+		<one-of>
+			<item> heure </item>
+			<item> heures </item>
+		</one-of>			
+	</rule>
+	
+	<rule id="heure_plus_minute">
+		<item> <ruleref uri="#heure"/> </item>
+		<tag>
+			out.heure = rules.latest().heure;
+			out.text = rules.latest().text;
+		</tag>
+		<item repeat="0-1"> et </item>
+		<item> <ruleref uri="#minute"/> </item>
+		<tag>
+			out.heure = out.heure + rules.latest().operation_heure;
+			out.minute = rules.latest().minute;
+			out.text = out.text + ' ' + rules.latest().text;
+		</tag>
+	</rule>
+	
+	<rule id="minute">
+		<one-of>
+			<item> <ruleref uri="#minute_special"/> </item>
+			<item> <ruleref uri="#minute_classic" /> </item>
+		</one-of>
+		<tag>
+			out.minute = rules.latest().minute;
+			out.text = rules.latest().text;
+			out.operation_heure = rules.latest().operation_heure;
+		</tag>
+	</rule>
+	
+	<rule id="minute_classic">
+		<one-of>
+			<item> <ruleref uri="grammaire_nombre_v3.grxml#nombre" />
+				<tag>
+					out.minute = rules.nombre.nb;
+					out.text = meta.nombre.text + ' minute';
+					out.operation_heure = 0;
+				</tag>
+			</item>
+			<item> une
+				<tag>
+					out.minute = 1;
+					out.text = 'une minute';
+					out.operation_heure = 0;
+				</tag>
+			</item>
+		</one-of>
+		<one-of>
+			<item repeat="0-1"> minute </item>
+			<item repeat="0-1"> minutes </item>
+		</one-of>
+	</rule>
+	
+	<rule id="minute_special">
+		<one-of>
+			<item> <ruleref uri="#minute_special_moins" />
+				<tag>
+					out.minute = rules.latest().minute;
+					out.text = rules.latest().text;
+					out.operation_heure = -1;
+				</tag>
+			</item>
+			<item> quart
+				<tag>
+					out.minute = 15;
+					out.text = 'et quart';
+					out.operation_heure = 0;
+				</tag>
+			</item>
+			<item> demi
+				<tag>
+					out.minute = 30;
+					out.text = 'et demi';
+					out.operation_heure = 0;
+				</tag>
+			</item>
+		</one-of>
+	</rule>
+	
+	<rule id="minute_special_moins">
+		<item> moins
+			<tag>
+				out.text = 'moins ';
+			</tag>
+		</item>
+		<one-of>
+			<item> le quart
+				<tag>
+					out.minute = 45;
+					out.text = out.text + 'le quart';
+				</tag>
+			</item>
+			<item> <ruleref uri="#minute_classic" />
+				<tag>
+					out.minute = 60 - rules.latest().minute;
+					out.text = out.text + rules.latest().text;
+				</tag>
+			</item>
+		</one-of>
+	</rule>
+	
+	<rule id="heure_soir">
+		<one-of>
+			<item> du soir
+				<tag>
+					out.text = ' du soir';
+				</tag>
+			</item>
+			<item> de l apres midi
+				<tag>
+					out.text = ' de l apres midi';
+				</tag>
+			</item>
+		</one-of>
+		<tag>
+			out.operation_heure = 12;
+		</tag>
+	</rule>
+	
+	<rule id="heure_matin">
+		<one-of>
+			<item> du matin
+				<tag>
+					out.text = ' du matin';
+				</tag>
+			</item>
+		</one-of>
+		<tag>
+			out.operation_heure = 0;
+		</tag>
+	</rule>
+	
+</grammar>

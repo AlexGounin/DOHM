@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar root="action" version="1.0" xml:lang="fr">
+
+	<meta name="description" content="grammaire pour la gestion de l'action"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<rule name="action" scope="public">
+		<item repeat="0-1"> <ruleref uri="#politesse_start" /> </item>
+		<ruleref uri="#option">
+			<tag> out.sql = rule.option.sql </tag>
+		</ruleref>
+		<ruleref uri="#attribut">
+			<tag>
+				out.date   = rule.attribut.date;
+				out.heure  = rule.attribut.heure;
+				out.option = rule.attribut.option;
+				out.prenom = rule.attribut.prenomq;
+				out.lieu   = rule.attribut.lieu;
+			</tag>
+		</ruleref>
+	</rule>
+
+	<rule name="politesse_start">
+		<one-of>
+			<item> je voudrais </item>
+			<item> je souhaite </item>
+			<item> je desire   </item>
+			<item> je veux     </item>
+			<item> j_aimerai   </item>
+			<item> j aimerai   </item>
+		</one-of>
+	</rule>
+
+	<rule name="politesse_end">
+		<one-of>
+			<item> s'il vous plait </item>
+			<item> s_il vous plait </item>
+			<item> s il vous plait </item>
+			<item> svp             </item>
+			<item> s'il te plais   </item>
+			<item> s_il te plais   </item>
+			<item> s il te plais   </item>
+			<item> stp             </item>
+		</one-of>
+	</rule>
+
+	<rule name="option">
+		<one-of>
+			<item> ajouter   <tag> out.sql ='add'    </tag></item>
+			<item> ajoute    <tag> out.sql ='add'    </tag></item>
+			<item> modifer   <tag> out.sql ='update' </tag></item>
+			<item> modife    <tag> out.sql ='update' </tag></item>
+			<item> supprimer <tag> out.sql ='delete' </tag></item>
+			<item> supprime  <tag> out.sql ='delete' </tag></item>
+			<item> consulter <tag> out.sql ='select' </tag></item>
+			<item> consulte  <tag> out.sql ='select' </tag></item>
+		</one-of>
+	</rule>
+
+	<rule id="attribut">
+		<item repeat="1-">
+			<item repeat="0-1">
+				<one-of>
+					  <item> la </item>
+					  <item> le </item> 
+					  <item> l </item>
+					  <item> l' </item>
+				</one-of>
+			</item >
+			<one-of>
+				<item>date			<tag> 	out.date	='true'	</tag></item>
+				<item>jour			<tag>	out.date	='true'	</tag></item>
+				<item>heure			<tag> 	out.heure 	='true'	</tag></item>
+				<item>horaire		<tag> 	out.heure 	='true'	</tag></item>
+				<item>objet			<tag> 	out.objet 	='true'	</tag></item>
+				<item>prenom		<tag> 	out.prenom 	='true'	</tag></item>
+				<item>personne		<tag> 	out.prenom 	='true'	</tag></item>
+				<item>lieu			<tag> 	out.lieu 	='true'	</tag></item>
+				<item>emplacement	<tag> 	out.lieu 	='true'	</tag></item>
+			</one-of>
+			<item repeat="0-1">
+				<one-of>
+					<item> et </item>
+					<item> , </item>
+				</one-of>
+			</item>
+		</item >
+	</rule>
+</grammar>

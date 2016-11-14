@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar root="Exit" version="1.0" xml:lang="fr">
+
+	<meta name="description" content="grammaire exit"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<rule id="Exit">
+		<one-of>
+			<item> quitter </item>
+			<item> quit </item>
+			<item> sortir </item>
+			<item> exit </item>
+		</one-of>
+	</rule>
+</grammar>
