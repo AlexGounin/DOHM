@@ -5,23 +5,24 @@
 	<meta name="author" content="Alexandre Gounin"/>
 	<meta name="copyright" content="3A SRI UPSSITECH"/>
 
-	<rule name="action" scope="public">
+	<rule id="action" scope="public">
 		<item repeat="0-1"> <ruleref uri="#politesse_start" /> </item>
-		<ruleref uri="#option">
-			<tag> out.sql = rule.option.sql </tag>
-		</ruleref>
-		<ruleref uri="#attribut">
+		<item><ruleref uri="#option"/>
+			<tag> out.sql = rules.option.sql </tag>
+		</item>
+		
+		<item><ruleref uri="#attribut" />
 			<tag>
-				out.date   = rule.attribut.date;
-				out.heure  = rule.attribut.heure;
-				out.option = rule.attribut.option;
-				out.prenom = rule.attribut.prenomq;
-				out.lieu   = rule.attribut.lieu;
+				out.date   = rules.attribut.date;
+				out.heure  = rules.attribut.heure;
+				out.objet  = rules.attribut.objet;
+				out.prenom = rules.attribut.prenom;
+				out.lieu   = rules.attribut.lieu;
 			</tag>
-		</ruleref>
+		</item>
 	</rule>
 
-	<rule name="politesse_start">
+	<rule id="politesse_start">
 		<one-of>
 			<item> je voudrais </item>
 			<item> je souhaite </item>
@@ -32,7 +33,7 @@
 		</one-of>
 	</rule>
 
-	<rule name="politesse_end">
+	<rule id="politesse_end">
 		<one-of>
 			<item> s'il vous plait </item>
 			<item> s_il vous plait </item>
@@ -45,12 +46,12 @@
 		</one-of>
 	</rule>
 
-	<rule name="option">
+	<rule id="option">
 		<one-of>
-			<item> ajouter   <tag> out.sql ='add'    </tag></item>
-			<item> ajoute    <tag> out.sql ='add'    </tag></item>
-			<item> modifer   <tag> out.sql ='update' </tag></item>
-			<item> modife    <tag> out.sql ='update' </tag></item>
+			<item> ajouter   <tag> out.sql ='insert' </tag></item>
+			<item> ajoute    <tag> out.sql ='insert' </tag></item>
+			<item> modifier  <tag> out.sql ='update' </tag></item>
+			<item> modifie   <tag> out.sql ='update' </tag></item>
 			<item> supprimer <tag> out.sql ='delete' </tag></item>
 			<item> supprime  <tag> out.sql ='delete' </tag></item>
 			<item> consulter <tag> out.sql ='select' </tag></item>
@@ -59,6 +60,13 @@
 	</rule>
 
 	<rule id="attribut">
+		<tag>
+			out.date   ='false';
+			out.heure  ='false';
+			out.objet  ='false';
+			out.prenom ='false';
+			out.lieu   ='false';
+		</tag>
 		<item repeat="1-">
 			<item repeat="0-1">
 				<one-of>

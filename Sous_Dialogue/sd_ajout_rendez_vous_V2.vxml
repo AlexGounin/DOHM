@@ -6,7 +6,7 @@
 
 	<meta name="description" content="gestion de l'ajout d'un rendez-vous avec une interaction mixte"/>
 	<meta name="author" content="Alexandre Gounin"/>
-	<meta name="copyright" content=""/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
 
 	<catch event="exit">
 		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>

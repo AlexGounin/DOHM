@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="Permet de gerer le choix de l'horaire d'un utilisateur"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<!-- gestion de l'aide utilisateur -->
+	<link event="help">
+		<grammar src="../Grammaire/grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<!-- geestion de la sortie a toute instant -->
+	<link event="exit">
+		<grammar src="../Grammaire/grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+
+	<form id="c_horaire" scope="public">
+		<var name="mode_trace"/>
+		<var name="valider_horaire" />
+
+		<field name="horaire">
+			<prompt> Qu'elle est l'horaire de votre rendez-vous S.V.P? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="../Grammaire/grammaire_horaire.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> saisir l'horaire sous la forme textuel, example: deux heures et dix minutes, douze heures moins le quarts </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser l'horaire? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner l'horaire de votre rendez-vous S.V.P ? </nomatch>
+			
+			<!-- Comportement du systeme une fois ce champ rempli -->
+			<filled>
+				<if cond="mode_trace=='True'">
+				   TRACE VALEUR 
+				   <prompt>heures: <value expr="horaire.heure" />                </prompt>
+				   <prompt>minutes: <value expr="horaire.minute" />              </prompt>
+				   <prompt>nb de minute total:<value expr="horaire.nb_minutes" /></prompt>
+				</if>
+				
+				<if cond="horaire.nb_minutes &lt; '1440'">
+					<if cond="horaire.nb_minutes &gt; '449' &amp;&amp; horaire.nb_minutes &lt; '1291'">
+						<assign name="valider_horaire" expr="1"/>
+					<else/>
+						<assign name="valider_horaire" expr="0"/>
+					</if>
+				<else/>
+					<assign name="valider_horaire" expr="2"/>
+				</if>
+
+				<if cond="valider_horaire=='0'">
+					Cet horaire n'est pas dans la plage valide: sept heure trente jusque vingt et une heure trente.
+					<clear namelist="horaire" />
+				<else/>
+					<if cond="valider_horaire=='2'">
+						<prompt> <value expr="horaire.text" /> n'est pas un horaire valide.</prompt>
+						<clear namelist="horaire" />
+					<else/>
+						<prompt>Votre rendez-vous est a <value expr="horaire.text" /> </prompt>
+						<return namelist="horaire"/>
+					</if>
+				</if>
+			</filled>
+		</field>
+	</form>
+
+</vxml>

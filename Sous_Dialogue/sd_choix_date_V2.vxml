@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+	<meta name="description" content="Permet de gerer le choix de la date d'un utilisateur"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<!-- gestion de l'aide utilisateur -->
+	<link event="help">
+		<grammar src="../Grammaire/grammaire_aide.grxml" type="application/srgs+xml" />
+	</link>
+
+	<!-- geestion de la sortie a toute instant -->
+	<link event="exit">
+		<grammar src="../Grammaire/grammaire_exit.grxml" type="application/srgs+xml" />
+	</link>
+
+	<catch event="exit">
+		<prompt> Fermeture de votre agenda... Merci de votre visite. A bientot </prompt>
+		<exit/>
+	</catch>
+
+	<form id="c_date" scope="public">
+		<var name="mode_trace"/>
+
+		<field name="date">
+			<prompt> Qu'elle est la date de votre rendez-vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="../Grammaire/grammaire_dates_v3.grxml" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> error </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser votre date de rendez-vous? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner votre de rendez-vous S.V.P ? </nomatch>
+			
+			<!-- Comportement du systeme une fois ce champ rempli -->
+			<filled>
+				<prompt> Votre numero date de rendez-vous est le <value expr="date.text" /> </prompt>
+				<if cond="mode_trace=='True'">
+				   TRACE VALEUR 
+				   <prompt>numero de jour: <value expr="date.num_jour" /></prompt>
+				   <prompt>nombre de jour: <value expr="date.nb_jour" /> </prompt>
+				   <prompt>numero de mois: <value expr="date.num_mois" /></prompt>
+				   <prompt>nombre d'annee: <value expr="date.nb_annee" /></prompt>
+				</if>
+				<return namelist="date"/>
+			</filled>
+		</field>
+	</form>
+
+</vxml>

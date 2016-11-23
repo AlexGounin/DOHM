@@ -50,7 +50,7 @@
 
 			<!-- Comportement du systeme une fois ce champ rempli -->
 			<filled>
-				Votre numero d'abonne est le <value expr="num_abonne.text" /> 
+				<prompt>Votre numero d'abonne est le <value expr="num_abonne.text" /></prompt> 
 				<if cond="mode_trace=='True'">
 				   TRACE VALEUR  <value expr="num_abonne.nb" />
 				</if>
