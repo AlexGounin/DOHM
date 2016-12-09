@@ -74,22 +74,22 @@
 		</field>
 
 		<!-- Ajout d'un rendez-vous -->
-		<subdialog name="ajout_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='insert'" >
+		<subdialog name="ajout_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql=='insert'" >
 			<param name="mode_trace" expr="active_trace" />
 		</subdialog>
 
 		<!-- Modification d'un rendez-vous -->
-		<subdialog name="modifier_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='update'" >
+		<subdialog name="modifier_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql=='update'" >
 			<param name="mode_trace" expr="active_trace" />
 		</subdialog>
 
 		<!-- Suppression d'un rendez-vous -->
-		<subdialog name="supp_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='remove'" >
+		<subdialog name="supp_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql=='remove'" >
 			<param name="mode_trace" expr="active_trace" />
 		</subdialog>
 
 		<!-- Consultation d'un rendez-vous -->
-		<subdialog name="consult_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql='select'" >
+		<subdialog name="consult_rdv" src="Sous_Dialogue/agenda_ajout_rdv_V1.vxml#ajout_rdv" cond="gestion_action.sql=='select'" >
 			<param name="mode_trace" expr="active_trace" />
 		</subdialog>
 

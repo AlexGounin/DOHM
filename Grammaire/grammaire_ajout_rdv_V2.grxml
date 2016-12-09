@@ -1,0 +1,99 @@
+<grammar version="1.0" root="ajout_rdv_multi" xml:lang="fr">
+
+	<meta name="description" content="grammaire pour la gestion d'ajout d'un rendez-vous mixte"/>
+	<meta name="author" content="Alexandre Gounin"/>
+	<meta name="copyright" content="3A SRI UPSSITECH"/>
+
+	<rule id="ajout_rdv_multi" scope="public">
+		<tag> 
+			out.horaire = new Object;
+			out.date = new Object;
+		</tag>
+		<item repeat="1-">
+			<one-of>
+				<item> <ruleref uri="#rule_horaire"/> 
+					<tag>
+						out.horaire.heure = rules.rule_horaire.heure;
+						out.horaire.minute = rules.rule_horaire.minute;
+						out.horaire.nb_minutes = rules.rule_horaire.nb_minutes;
+						out.horaire.text = rules.rule_horaire.text;
+					</tag>
+				</item>
+
+				<item> <ruleref uri="#rule_date"/>
+					<tag>
+						out.date.jour= rules.rule_date.jour;
+						out.date.mois = rules.rule_date.mois;
+						out.date.annee = rules.rule_date.annee;
+						out.date.text= rules.rule_date.text;
+					</tag>
+				</item>
+
+				<item> <ruleref uri="#rule_lieu"/>	
+					<tag> out.lieu = rules.rule_lieu</tag>
+				</item>
+
+				<item> <ruleref uri="#rule_personne"/>
+					<tag> out.personne = rules.rule_personne</tag>
+				</item>
+
+				<item> <ruleref uri="#rule_objet"/>	
+					<tag> out.objet = rules.rule_objet</tag>
+				</item>			
+			</one-of>
+		</item>
+	</rule>
+
+	<rule id="rule_horaire" scope="public">
+		<item repeat="0-1"> a </item>
+		<ruleref uri="grammaire_horaire.grxml#Horaire"/> 
+		<tag>
+			out.heure = rules.Horaire.heure;
+			out.minute = rules.Horaire.minute;
+			out.nb_minutes = rules.Horaire.nb_minutes;
+			out.text = rules.Horaire.text;
+		</tag>
+	</rule>
+
+	<rule id="rule_date" scope="public">
+		<item repeat="0-1"> le </item>
+		<ruleref uri="grammaire_dates_v3.grxml#Date"/>	
+		<tag>
+			out.jour= rules.Date.nb_jour;
+			out.mois = rules.Date.num_mois;
+			out.annee = rules.Date.nb_annee;
+			out.text= rules.Date.text;
+		 </tag>
+	</rule>
+	
+	<rule id="rule_lieu" scope="public">
+		<item> 
+			<item repeat="0-1"> a </item>
+			<ruleref uri="grammaire_lieu.grxml#gestion_lieu"/>	
+			<tag>
+				out.lieu_text = rules.gestion_lieu.text
+				out.lieu = rules.gestion_lieu
+			</tag>
+		</item>
+	</rule>
+			
+	<rule id="rule_personne" scope="public">
+		<item> 
+			<item repeat="0-1"> avec </item>
+			<ruleref uri="grammaire_personne.grxml#Personne"/>
+			<tag>
+				out.personne_text = rules.Personne.text
+			</tag>
+		</item>
+	</rule>
+	
+	<rule id="rule_objet" scope="public">
+		<item> 
+			<item repeat="0-1"> pour </item>
+			<ruleref uri="grammaire_objet.grxml#Objet"/>	
+			<tag> 
+				out.objet_text = rules.Object_v1.text
+			</tag>
+		</item>	
+	</rule>
+</grammar>

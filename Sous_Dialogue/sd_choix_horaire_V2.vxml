@@ -58,7 +58,7 @@
 				</if>
 
 				<if cond="valider_horaire=='0'">
-					Cet horaire n'est pas dans la plage valide: sept heure trente jusque vingt et une heure trente.
+					Cet horaire n'est pas dans la plage valide: sept heure trente jusque vingt et une heures trente.
 					<clear namelist="horaire" />
 				<else/>
 					<if cond="valider_horaire=='2'">
@@ -72,5 +72,4 @@
 			</filled>
 		</field>
 	</form>
-
 </vxml>

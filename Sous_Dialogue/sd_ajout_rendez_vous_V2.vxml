@@ -21,4 +21,74 @@
 		<grammar src="..\Grammaire\grammaire_exit.grxml" type="application/srgs+xml" />
 	</link>
 
+	<form id="ajout_rdv">
+		<var name="mode_trace" />
+		<var name="c_date" />
+		<var name="c_horaire" />
+		<var name="rule_lieu" />
+		<var name="rule_personne" />
+		
+		<grammar src="../Grammaire/grammaire_ajout_rdv_V2.grxml"  type="application/srgs+xml"/>
+
+		<initial name="mixed">
+			<prompt>
+			Indiquez le rendez vous que vous souhaitez ajouter s'il vous plais.
+			</prompt>
+			
+			<help>
+			  Veuillez rentrer l'heure, la date, le lieu, l'objet de votre rendez-vous ainsi que la personne avec qui vous avez rendez-vous
+			</help>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner la date du nouveau rendez vous s il vous plait ? </nomatch>
+		
+		</initial>
+
+		<!-- champ DATE -->
+		<subdialog name="choix_date" src="sd_choix_date_V2.vxml#c_date" slot="c_date" >
+			<param name="mode_trace" expr="mode_trace" />
+		</subdialog>
+
+		<!-- champ HORAIRE -->
+		<subdialog name="choix_horaire" src="sd_choix_horaire_V2.vxml#c_horaire" slot="c_horaire" >
+			<param name="mode_trace" expr="mode_trace" />
+			<filled>
+				<value expr="choix_horaire.horaire.text"/>
+			</filled>
+		</subdialog>
+		</subdialog>
+
+		<!-- champ LIEU -->
+		<field name="choix_lieu" slot="rule_lieu">
+			<prompt> Ou ce trouve votre rendez-vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: lieu -->
+			<grammar src="../Grammaire/grammaire_ajout_rdv_V2.grxml#rule_lieu" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> Precisez votre lieu </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser le lieu? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous me donner le lieu de votre rendez-vous S.V.P ? </nomatch>
+
+			<filled>
+				<prompt> Vous avez rendez-vous a :<value expr="choix_lieu.lieu" /> </prompt>
+			</filled>
+		</field>
+
+		<!-- champ PERSONNE -->
+		<field name="choix_personne" slot="rule_personne">
+			<prompt> Avec qui avez vous rendez vous S.V.P ? </prompt>
+			
+			<!-- Appel a une grammaire externe: date -->
+			<grammar src="../Grammaire/grammaire_ajout_rdv_V2.grxml#rule_personne" type="application/srgs+xml"/>
+			
+			<!-- Gestion des erreurs -->
+			<help> Saisissez le nom complet: titre prenom nom </help>
+			<noinput> Je n'ai pas entendu. Pouvez-vous me preciser le nom de cette personne? </noinput>
+			<nomatch> Je n'ai pas compris. Pouvez-vous m'indiquer avec qui avez vous rendez-vous S.V.P ? </nomatch>
+
+			<filled>
+				<prompt> Vous avez rendez-vous avec <value expr="choix_personne.text" /> </prompt>
+			</filled>
+		</field>
+	</form>
+
 </vxml>
